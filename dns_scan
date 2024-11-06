@@ -1,0 +1,43 @@
+import dns.resolver 
+import socket
+import ipaddress
+
+def is_open_dns(ip):
+    """检查指定IP是否为开放DNS解析器"""
+    try:
+        # 创建DNS解析器实例
+        resolver = dns.resolver.Resolver()
+        # 指定解析器
+        resolver.nameservers = [ip]
+        # 尝试发送DNS查询
+        response = resolver.resolve('example.com', 'A')
+        return True  # 成功返回响应，说明是开放DNS
+    except (dns.exception.DNSException, socket.error):
+        return False  # 查询失败，说明不是开放DNS
+
+def scan_open_dns(start_ip, end_ip):
+    """扫描指定范围内的开放DNS解析器"""
+    open_dns_servers = []
+    
+    for ip in ip_list:
+        if is_open_dns(ip):
+            print(f"开放DNS解析器发现: {ip}")
+            open_dns_servers.append(ip)
+    # # 遍历IP范围
+    # for ip in ipaddress.summarize_address_range(start_ip, end_ip):
+    #     print(ip)
+    #     for single_ip in ip:
+    #         if is_open_dns(str(single_ip)):
+    #             print(f"开放DNS解析器发现: {single_ip}")
+    #             open_dns_servers.append(str(single_ip))
+
+    return open_dns_servers
+
+ip_list=['192.168.32.1','192.168.32.2','192.168.32.133','192.168.32.140','192.168.32.141','192.168.32.254']
+# 定义IP范围
+# start_ip = ipaddress.IPv4Address('192.168.106.119')  # 起始IP
+# end_ip = ipaddress.IPv4Address('192.168.106.200')   # 结束IP
+
+# 执行扫描
+open_dns_servers = scan_open_dns(start_ip, end_ip)
+print("找到的开放DNS解析器：", open_dns_servers)
