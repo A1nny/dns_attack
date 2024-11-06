@@ -1,0 +1,29 @@
+from scapy.all import IP, UDP, DNS, DNSQR, send, sr1
+
+# 构造DNS请求，用于查询DNS版本信息
+def get_dns_version(dns_server_ip):
+    # 使用CHAOS类的VERSION.BIND记录查询
+    dns_request = IP(dst=dns_server_ip) / \
+                  UDP(dport=53) / \
+                  DNS(rd=1, qd=DNSQR(qname="version.bind", qtype="TXT", qclass=3))
+    
+    # 发送请求并接收响应
+    response = sr1(dns_request, verbose=0, timeout=2)
+    
+    if response and response.haslayer(DNS) and response[DNS].ancount > 0:
+        # 提取并打印版本信息
+        version_info = response[DNS].an[0].rdata
+        print(f"DNS Server Version: {version_info}")
+        return version_info
+    else:
+        print("Failed to retrieve DNS version.")
+        return None
+
+# 示例使用
+dns_server = "192.168.32.143"  # 目标DNS服务器IP
+version_info = get_dns_version(dns_server)
+
+# 基于版本信息查找漏洞并选择攻击手段（需手动查询并根据漏洞实现利用）
+if version_info:
+    print(f"Identified DNS Server Version: {version_info}")
+    # 后续可根据获取的版本信息查找对应的漏洞，选择适合的攻击方法
